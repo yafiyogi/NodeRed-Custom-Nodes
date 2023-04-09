@@ -1,0 +1,100 @@
+<!--
+
+  Thermostatic Radiator Valve Auto Calibration for Node-Red
+  Copyright (C) 2023 Yafiyogi
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType('trv-auto-calibration', {
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            trv_min_interval: { value: 60,
+                                validate: function(value, opt) {
+                                    if((value !== '')
+                                       && !isNaN(value)) {
+                                        if((value >= 5)
+                                           && (value <= 3600))
+                                        {
+                                            return true;
+                                        }
+
+                                        return opt ? RED._("validator.errors.invalid-num: 5 <= v <= 3600") : false;
+                                    }
+                                    return opt ? RED._("validator.errors.invalid-num") : false;
+                                }
+                              },
+            name: {value: ""},
+            trv_topic: {value: "", required: true},
+            trv_temperature_prop: {value: "", required: true},
+            trv_calibration_prop: {value: "", required: true},
+            sensor_topic: {value: "", required: true},
+            sensor_temperature_prop: {value: "", required: true}
+        },
+        inputs: 1,
+        inputLabels: "mqtt in",
+        outputs: 1,
+        outputLabels: "mqtt out",
+        icon: "font-awesome/fa-cogs",
+        label: function() {
+            return this.name || "trv-auto-calibration";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="trv-auto-calibration">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa"></i>Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-trv_min_interval"><i class="fa"></i>Interval (secs)</label>
+        <input type="text" id="node-input-trv_min_interval" placeholder="Interval in seconds">
+    </div>
+
+    <div class="form-row">
+        <label> TRV</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-trv_topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-trv_topic" placeholder="Topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-trv_temperature"><i class="fa"></i>Temperature Property</label>
+        <input type="text" id="node-input-trv_temperature_prop" placeholder="Temperature Property">
+    </div>
+    <div class="form-row">
+        <label for="node-input-trv_calibration"><i class="fa"></i>Calibration Property</label>
+        <input type="text" id="node-input-trv_calibration_prop" placeholder="Calibration Property">
+    </div>
+
+    <div class="form-row">
+        <label> Sensor</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-sensor_topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-sensor_topic" placeholder="Topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sensor_temperature"><i class="fa"></i>Temperature Property</label>
+        <input type="text" id="node-input-sensor_temperature_prop" placeholder="Temperature Property">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="trv-auto-calibration">
+    <p>Auto calibrate a TRV.</p>
+</script>
