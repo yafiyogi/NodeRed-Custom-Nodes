@@ -7,17 +7,21 @@
 
 ## To install in dockerized Node-Red:
 ```
-docker stop nodered
 sudo cp package/yafiyogi-trv-auto-calibration-x.y.z.tgz data/
 sudo chown 100999 data/yafiyogi-trv-auto-calibration-x.y.z.tgz
 sudo chgrp 100999 data/yafiyogi-trv-auto-calibration-x.y.z.tgz
 docker exec -it <container id> /bin/sh -c 'cd /data ; npm install yafiyogi-trv-auto-calibration-x.y.z.tgz'
+docker stop nodered
 docker start nodered
 ```
 Note: 10999 is the user id and group id on my docker instance of nodered. It may be different for you.
 
 ## To uninstall in dockerized Node-Red:
-`docker exec -it <container id> /bin/sh -c 'cd /data ; npm uninstall @yafiyogi/trv-auto-calibration'`
+```
+docker exec -it <container id> /bin/sh -c 'cd /data ; npm uninstall @yafiyogi/trv-auto-calibration'
+docker stop nodered
+docker start nodered
+```
 
 Instructions to create an auto colibration flow can be fond here: https://yafiyogi.wordpress.com/2023/04/08/configuring-trv-auto-calibration/
 
