@@ -23,7 +23,7 @@ module.exports = function(RED) {
         var node = this;
 
         node.last_update = 0;
-        node.trv_min_interval = (config.trv_min_interval || 60) * 1000;
+        node.trv_min_interval = Math.max(5, Math.round(parseFloat(config.trv_min_interval) || 10));
         node.name = config.name.trim();
         console.log("trv name [%O] interval [%Oms]",
                     node.name,
@@ -58,7 +58,7 @@ module.exports = function(RED) {
             var msg = {
                 "id": node.id,
                 "payload": null,
-                "topic": "timer"
+                "topic": "trv-adjust-timer"
             };
             adjust_fn(msg);
         };
@@ -87,7 +87,7 @@ module.exports = function(RED) {
                     node.temp_trv_offset = parseFloat(trv_offset);
                 }
             }
-            else if("timer" === msg.topic) {
+            else if("trv-adjust-timer" === msg.topic) {
                 if(is_defined(node.timer)) {
                     clearTimeout(node.timer);
                     node.timer = null;
@@ -106,7 +106,7 @@ module.exports = function(RED) {
 
                 if(temp_offset !== node.temp_trv_offset) {
                     // The offset has changed since last time.
-                    var now = Date.now();
+                    var now = Math.round(Date.now() / 1000);
                     var date_diff = now - node.last_update;
 
                     if( date_diff >= node.trv_min_interval) {
@@ -117,10 +117,14 @@ module.exports = function(RED) {
                             "payload": {
                             }
                         };
-
                         out_msg.payload[node.trv_calibration_prop] = temp_offset;
 
-                        node.send(out_msg);
+                        var sender = function(msg) {
+                            node.send(msg)
+                        };
+
+                        // Delay send for 500ms
+                        setTimeout(sender, 500, out_msg);
                     }
 
                     if(!is_defined(node.timer)) {
@@ -129,7 +133,7 @@ module.exports = function(RED) {
                         //    update.
                         // 2) A recalibration is missed. This is where a recalibration is sent,
                         //    but for some reason it doesn't actually change the TRV settings.
-                        var delay = node.last_update - now + node.trv_min_interval + 500;
+                        var delay = ((node.last_update - now + node.trv_min_interval) * 1000) + 500;
 
                         node.timer = setTimeout(timer_handler, delay);
                     }
